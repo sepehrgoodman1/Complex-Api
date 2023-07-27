@@ -58,7 +58,7 @@ namespace ComplexApi.Controllers
                           select new Get_Coplexes_Detail_BlocksDto()
                           {
                               Name = c.Name,
-                              BlockDetails = c.Blocks.Select( block => new { block.Id, block.NumberUnits })
+                              BlockDetails = c.Blocks.Select( block => new { block.Name, block.NumberUnits })
                           };
 
 

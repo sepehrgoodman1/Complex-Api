@@ -93,6 +93,11 @@ namespace ComplexApi.Controllers
                 ComplexId = dto.ComplexId,
             };
 
+            if(!_dbContext.Complex.Any(x=>x.Id == dto.ComplexId))
+            {
+                return NotFound("ComplexId Not Found!");
+            }
+
 
             if (block.NumberUnits < 1)
             {
