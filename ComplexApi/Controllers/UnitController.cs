@@ -42,19 +42,35 @@ namespace ComplexApi.Controllers
             var unit = new Unit
             {
                 Tenant = dto.Tenant,
-                TypeHouse = dto.TypeHouse,
+                TypeHouse = dto.TypeHouse.ToUpper(),
                 BlockId = dto.BlockId,
             };
 
-            if(!_dbContext.Block.Any(x=> x.Id == unit.BlockId))
+
+          
+            if(!Enum.IsDefined(typeof(TypeOfUnits), unit.TypeHouse))
+            {
+                return BadRequest("Unit Type Must Be Only 'Owner', 'Tenant' or 'Anonymous'");
+            }
+
+            if (!_dbContext.Block.Any(x=> x.Id == unit.BlockId))
             {
                 return BadRequest("Block Id Does Not Exist");
             }
 
-            if (_dbContext.Unit.Any(b=>b.Tenant == unit.Tenant) && _dbContext.Unit.Any(b => b.BlockId == unit.BlockId))
+
+
+            var listUnits = await _dbContext.Unit.Select(b => new { b.Tenant, b.BlockId }).ToListAsync();
+
+            foreach (var single_unit in listUnits)
             {
-                return BadRequest("Unit Name Already Exist In Block");
+                if (single_unit.BlockId == unit.BlockId && single_unit.Tenant == unit.Tenant)
+                {
+                    return BadRequest("Unit Name Already Exist In Complex");
+                }
             }
+
+
 
             _dbContext.Unit.Add(unit);
 
@@ -70,4 +86,10 @@ namespace ComplexApi.Controllers
 
 
     }
+}
+enum TypeOfUnits
+{
+    OWNER,
+    TENANT,
+    ANONYMOUS
 }

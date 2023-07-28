@@ -1,4 +1,6 @@
-﻿namespace ComplexApi.Dtos
+﻿using System.Text.Json.Serialization;
+
+namespace ComplexApi.Dtos
 {
     public class Get_ComplexDto
     {

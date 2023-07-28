@@ -171,7 +171,7 @@ namespace ComplexApi.Controllers
 
 
         [HttpPatch]
-        public async Task<IActionResult> PutBrand( int id , UpdateComplexDto complexDto)
+        public async Task<IActionResult> PutComplex( int id , UpdateComplexDto complexDto)
         {
             var complex = await _dbContext.Complex.FindAsync(id);
             if (complex == null)
@@ -179,13 +179,11 @@ namespace ComplexApi.Controllers
                 return NotFound();
             }
 
-            if (complexDto.NumberUnits != complex.NumberUnits)
-            {
-                // code here
-            }
-    
             complex.NumberUnits = complexDto.NumberUnits;
+
             _dbContext.Entry(complex).State = EntityState.Modified;
+
+
             try
             {
                 await _dbContext.SaveChangesAsync();

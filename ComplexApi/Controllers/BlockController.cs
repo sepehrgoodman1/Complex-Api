@@ -46,22 +46,22 @@ namespace ComplexApi.Controllers
                 return NotFound();
             }
 
-            var FindedBlock = await _dbContext.Block.FindAsync(id);
 
-            if(FindedBlock == null)
+
+            var block = await _dbContext.Block.Select(b =>
+                                                  new Get_One_BlockDto()
+                                                  {
+                                                      Id = b.Id,
+                                                      Name = b.Name,
+                                                      UnitDetails = b.Units.Select(u=> new {u.Tenant, u.TypeHouse})
+                                                  }).SingleOrDefaultAsync(c => c.Id == id);
+
+
+            if (block == null)
             {
                 return NotFound("Block With this id does not Exist!");
             }
 
-            Get_One_BlockDto block = new Get_One_BlockDto();
-
-            block.Name = FindedBlock.Name;
-            block.Units = FindedBlock.Units;
-
-            if (block == null)
-            {
-                return NotFound();
-            }
             return block;
         }
         [HttpGet("GetBy/{name}")]
