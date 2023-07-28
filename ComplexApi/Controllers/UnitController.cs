@@ -13,9 +13,6 @@ namespace ComplexApi.Controllers
     {
         private readonly EFDataContext _dbContext;
 
-
-
-
         public UnitController(EFDataContext dbContext)
         {
             _dbContext = dbContext;

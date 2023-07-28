@@ -48,6 +48,11 @@ namespace ComplexApi.Controllers
 
             var FindedBlock = await _dbContext.Block.FindAsync(id);
 
+            if(FindedBlock == null)
+            {
+                return NotFound("Block With this id does not Exist!");
+            }
+
             Get_One_BlockDto block = new Get_One_BlockDto();
 
             block.Name = FindedBlock.Name;
@@ -98,15 +103,23 @@ namespace ComplexApi.Controllers
                 return NotFound("ComplexId Not Found!");
             }
 
+            var listBlocks = await _dbContext.Block.Select(b => new { b.Name, b.ComplexId }).ToListAsync();
+
+            foreach (var single_block in listBlocks)
+            {
+                if(single_block.ComplexId == block.ComplexId && single_block.Name == block.Name)
+                {
+                    return BadRequest("Block Name Already Exist In Complex");
+
+                }
+            }
+
 
             if (block.NumberUnits < 1)
             {
                 return BadRequest("Number of Units Must be More than one unit");
             }
-            if (_dbContext.Block.Any(b=>b.Name == block.Name) && _dbContext.Block.Any(b => b.ComplexId == block.ComplexId))
-            {
-                return BadRequest("Block Name Already Exist In Complex");
-            }
+          
 
 
 
@@ -117,7 +130,7 @@ namespace ComplexApi.Controllers
             return CreatedAtAction(nameof(GetBlockList), new { id = block.Id }, block);
         }
 
-        [HttpPut]
+        [HttpPatch]
         public async Task<IActionResult> UpdateBlock(int id, UpdateBlockDto BlockDto)
         {
 
@@ -125,7 +138,7 @@ namespace ComplexApi.Controllers
 
             if (block == null)
             {
-                return NotFound();
+                return NotFound("Block with this id does not exist!");
             }
 
             if (block.Units != null)
