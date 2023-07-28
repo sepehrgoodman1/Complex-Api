@@ -184,8 +184,6 @@ namespace ComplexApi.Controllers
                 // code here
             }
     
-
-
             complex.NumberUnits = complexDto.NumberUnits;
             _dbContext.Entry(complex).State = EntityState.Modified;
             try

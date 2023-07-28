@@ -90,7 +90,6 @@ namespace ComplexApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Block>> PostBlock(AddBlockDto dto)
         {
-
             var block = new Block
             {
                 Name = dto.Name,
@@ -114,14 +113,10 @@ namespace ComplexApi.Controllers
                 }
             }
 
-
             if (block.NumberUnits < 1)
             {
                 return BadRequest("Number of Units Must be More than one unit");
             }
-          
-
-
 
             _dbContext.Block.Add(block);
 
@@ -141,20 +136,51 @@ namespace ComplexApi.Controllers
                 return NotFound("Block with this id does not exist!");
             }
 
-            if (block.Units != null)
-            {
-                return BadRequest("At Least One Unit Registered! You Cant Change Number of units");
-            }
             if (BlockDto.NumberUnits > 0)
             {
                 block.NumberUnits = BlockDto.NumberUnits;
+                block.Name = BlockDto.Name;
             }
             else
             {
-                return BadRequest("Number of Units Must be More than one unit");
+                return BadRequest("Number of Units Must be Greater than one");
             }
 
+
             _dbContext.Entry(block).State = EntityState.Modified;
+
+
+            var listBlocks = await _dbContext.Block.Select(b => new { b.Name, b.ComplexId, b.Id }).ToListAsync();
+
+            foreach (var single_block in listBlocks)
+            {
+                if (id == single_block.Id)
+                {
+                    continue;
+
+                }
+                if (single_block.ComplexId == block.ComplexId && single_block.Name == block.Name)
+                {
+                    return BadRequest("Block Name Already Exist In Complex");
+                }
+            }
+
+            var listUnits = await _dbContext.Unit.ToListAsync();
+
+            int CounterUnits = 0;
+
+            foreach (var unit in listUnits)
+            {
+                if(block.Id == unit.BlockId)
+                {
+                    CounterUnits++;
+                }
+            }
+            if(CounterUnits > 0 )
+            {
+                return BadRequest("For this block unit registered before! you cant change number of units.");
+            }
+
 
             try
             {

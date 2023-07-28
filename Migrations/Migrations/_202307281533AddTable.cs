@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace Migrations.Migrations
 {
-    [Migration(202307240151)]
-    public class _202307240151AddTables :Migration
+    [Migration(202307281533)]
+    public class _202307281533AddTable :Migration
     {
         public override void Down()
         {
@@ -32,7 +32,8 @@ namespace Migrations.Migrations
 
             Create.Table("Unit").WithColumn("Id").AsInt32().PrimaryKey().Identity()
                                 .WithColumn("Tenant").AsString().NotNullable()
-                                .WithColumn("BlockId").AsInt32();
+                                .WithColumn("BlockId").AsInt32()
+                                .WithColumn("TypeHouse").AsString();
 
 
             // End Tables
