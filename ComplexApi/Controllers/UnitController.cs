@@ -38,15 +38,12 @@ namespace ComplexApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Unit>> PostUnit(AddUnitDto dto)
         {
-
             var unit = new Unit
             {
                 Tenant = dto.Tenant,
                 TypeHouse = dto.TypeHouse.ToUpper(),
                 BlockId = dto.BlockId,
             };
-
-
           
             if(!Enum.IsDefined(typeof(TypeOfUnits), unit.TypeHouse))
             {
@@ -59,18 +56,12 @@ namespace ComplexApi.Controllers
             }
 
 
+            var block = await _dbContext.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == unit.BlockId);
 
-            var listUnits = await _dbContext.Unit.Select(b => new { b.Tenant, b.BlockId }).ToListAsync();
-
-            foreach (var single_unit in listUnits)
+            if (block.Units.Select(b => b.Tenant).Contains(unit.Tenant))
             {
-                if (single_unit.BlockId == unit.BlockId && single_unit.Tenant == unit.Tenant)
-                {
-                    return BadRequest("Unit Name Already Exist In Complex");
-                }
+                return BadRequest("Unit Name Already Exist In Block");
             }
-
-
 
             _dbContext.Unit.Add(unit);
 

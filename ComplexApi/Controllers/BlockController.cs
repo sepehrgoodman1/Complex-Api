@@ -97,20 +97,16 @@ namespace ComplexApi.Controllers
                 ComplexId = dto.ComplexId,
             };
 
-            if(!_dbContext.Complex.Any(x=>x.Id == dto.ComplexId))
+            if(!_dbContext.Complex.Any(x=>x.Id == block.ComplexId))
             {
                 return NotFound("ComplexId Not Found!");
             }
 
-            var listBlocks = await _dbContext.Block.Select(b => new { b.Name, b.ComplexId }).ToListAsync();
+            var complex = await _dbContext.Complex.Include(b => b.Blocks).FirstOrDefaultAsync(x => x.Id == block.ComplexId);
 
-            foreach (var single_block in listBlocks)
+            if (complex.Blocks.Select(b => b.Name).Contains(block.Name))
             {
-                if(single_block.ComplexId == block.ComplexId && single_block.Name == block.Name)
-                {
-                    return BadRequest("Block Name Already Exist In Complex");
-
-                }
+                return  BadRequest("Block Name Already Exist In Complex");
             }
 
             if (block.NumberUnits < 1)
@@ -146,23 +142,14 @@ namespace ComplexApi.Controllers
                 return BadRequest("Number of Units Must be Greater than one");
             }
 
-
             _dbContext.Entry(block).State = EntityState.Modified;
 
+            var thisBlock = await _dbContext.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == block.Id);
 
-            var listBlocks = await _dbContext.Block.Select(b => new { b.Name, b.ComplexId, b.Id }).ToListAsync();
-
-            foreach (var single_block in listBlocks)
+            if (thisBlock.Units.Any())
             {
-                if (id == single_block.Id)
-                {
-                    continue;
+                return BadRequest("For this block unit registered before! you cant change number of units.");
 
-                }
-                if (single_block.ComplexId == block.ComplexId && single_block.Name == block.Name)
-                {
-                    return BadRequest("Block Name Already Exist In Complex");
-                }
             }
 
             var listUnits = await _dbContext.Unit.ToListAsync();
@@ -171,16 +158,15 @@ namespace ComplexApi.Controllers
 
             foreach (var unit in listUnits)
             {
-                if(block.Id == unit.BlockId)
+                if (block.Id == unit.BlockId)
                 {
                     CounterUnits++;
                 }
             }
-            if(CounterUnits > 0 )
+            if (CounterUnits > 0)
             {
                 return BadRequest("For this block unit registered before! you cant change number of units.");
             }
-
 
             try
             {

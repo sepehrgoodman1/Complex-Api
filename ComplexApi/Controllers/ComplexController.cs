@@ -42,6 +42,11 @@ namespace ComplexApi.Controllers
                           };
 
 
+            if (!complex.Any())
+            {
+                return NotFound();
+            }
+
             return await complex.ToListAsync();
         }
 
@@ -60,6 +65,11 @@ namespace ComplexApi.Controllers
                               Name = c.Name,
                               BlockDetails = c.Blocks.Select( block => new { block.Name, block.NumberUnits })
                           };
+
+            if (!complex.Any())
+            {
+                return NotFound();
+            }
 
 
             return await complex.ToListAsync();
@@ -86,6 +96,11 @@ namespace ComplexApi.Controllers
                                                        NotRegistedredUnits = c.NumberUnits - c.Blocks.SelectMany(u => u.Units).Count(),
                                                        NumberOfBlocks = c.Blocks.Count()
                                                    }).SingleOrDefaultAsync(b => b.Id == id);
+
+            if (complex == null)
+            {
+                return NotFound();
+            }
 
             return complex;
         }
@@ -143,6 +158,11 @@ namespace ComplexApi.Controllers
                           };
 
 
+            if (!complex.Any())
+            {
+                return NotFound();
+            }
+
             return await complex.ToListAsync();
         }
 
@@ -173,16 +193,23 @@ namespace ComplexApi.Controllers
         [HttpPatch]
         public async Task<IActionResult> PutComplex( int id , UpdateComplexDto complexDto)
         {
-            var complex = await _dbContext.Complex.FindAsync(id);
+
+            var complex = await _dbContext.Complex.Include(c => c.Blocks).ThenInclude(c => c.Units).FirstAsync(x=>x.Id == id);
+
             if (complex == null)
             {
                 return NotFound();
             }
+            
+            if (complex.Blocks.SelectMany(x => x.Units).Any())
+            {
+                return BadRequest("for this complex there is registered unit, you cant change number of units!");
+            }
+
 
             complex.NumberUnits = complexDto.NumberUnits;
-
+            
             _dbContext.Entry(complex).State = EntityState.Modified;
-
 
             try
             {
