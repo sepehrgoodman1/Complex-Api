@@ -1,6 +1,4 @@
 ﻿using Apis.Dtos;
-using ComplexApi.Dtos;
-using ComplexApi.ComplexApi;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,31 +6,32 @@ using System;
 using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Security.Cryptography.Xml;
+using Ef.Persistence.ComplexProject.Complexes;
 
-namespace ComplexApi.Controllers
+namespace Apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class ComplexController : ControllerBase
     {
-        private readonly EFDataContext _dbContext;
+        private readonly IComplexRepository _repository;
 
-        public ComplexController(EFDataContext dbContext)
+        public ComplexController(IComplexRepository dbContext)
         {
-            _dbContext = dbContext;
+            _repository = dbContext;
         }
 
 
         [HttpGet("Complexes-With-RegistedUnit")]
         public async Task<ActionResult<IEnumerable<Get_ComplexDto>>> GetComplexList()
         {
-            if(_dbContext.Complex == null)
+            if(_repository.Complex == null)
             {
                 return NotFound();
             }
 
 
-            var complex = from c in _dbContext.Complex
+            var complex = from c in _repository.Complex
                           select new Get_ComplexDto()
                           {
                               Id = c.Id,
@@ -53,13 +52,13 @@ namespace ComplexApi.Controllers
         [HttpGet("Complexes-Detail-Blocks")]
         public async Task<ActionResult<IEnumerable<Get_Coplexes_Detail_BlocksDto>>> GetComplexWithDetailBlocks()
         {
-            if (_dbContext.Complex == null)
+            if (_repository.Complex == null)
             {
                 return NotFound();
             }
 
 
-            var complex = from c in _dbContext.Complex
+            var complex = from c in _repository.Complex
                           select new Get_Coplexes_Detail_BlocksDto()
                           {
                               Name = c.Name,
@@ -81,13 +80,13 @@ namespace ComplexApi.Controllers
         [HttpGet("Complex-And-Number-Blocks/{id:int}")]
         public async Task<ActionResult<Get_Complex_And_CountBlock>> GetComplexAndBlock(int id)
         {
-            if (_dbContext.Complex == null)
+            if (_repository.Complex == null)
             {
                 return NotFound();
             }
 
 
-            var complex = await _dbContext.Complex.Select(c =>
+            var complex = await _repository.Complex.Select(c =>
                                                    new Get_Complex_And_CountBlock()
                                                    {
                                                        Id = c.Id,
@@ -105,20 +104,16 @@ namespace ComplexApi.Controllers
             return complex;
         }
 
-
-
-
-
         [HttpGet("GetBy/{id:int}")]
         public async Task<ActionResult<Get_ComplexDto>> GetComplexList(int id)
         {
-            if (_dbContext.Complex == null)
+            if (_repository.Complex == null)
             {
                 return NotFound();
             }
        
 
-            var complex = await _dbContext.Complex.Select(c =>
+            var complex = await _repository.Complex.Select(c =>
                                                    new Get_ComplexDto()
                                                    {
                                                        Id = c.Id,
@@ -141,7 +136,7 @@ namespace ComplexApi.Controllers
         [HttpGet("GetBy/{name}")]
         public async Task<ActionResult<IEnumerable<Get_ComplexDto>>> GetComplexList( string name)
         {
-            IQueryable<Complex> query = _dbContext.Complex;
+            IQueryable<Complex> query = _repository.Complex;
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -182,9 +177,9 @@ namespace ComplexApi.Controllers
                 return BadRequest("Number of Units Must be between 4 and 1000");
             }
             
-            _dbContext.Complex.Add(complex);
+            _repository.Complex.Add(complex);
 
-            await _dbContext.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetComplexList), new {id = complex.Id}, complex);
         }
@@ -194,7 +189,7 @@ namespace ComplexApi.Controllers
         public async Task<IActionResult> PutComplex( int id , UpdateComplexDto complexDto)
         {
 
-            var complex = await _dbContext.Complex.Include(c => c.Blocks).ThenInclude(c => c.Units).FirstAsync(x=>x.Id == id);
+            var complex = await _repository.Complex.Include(c => c.Blocks).ThenInclude(c => c.Units).FirstAsync(x=>x.Id == id);
 
             if (complex == null)
             {
@@ -209,11 +204,11 @@ namespace ComplexApi.Controllers
 
             complex.NumberUnits = complexDto.NumberUnits;
             
-            _dbContext.Entry(complex).State = EntityState.Modified;
+            _repository.Entry(complex).State = EntityState.Modified;
 
             try
             {
-                await _dbContext.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch(DbUpdateConcurrencyException)
             {
@@ -230,23 +225,23 @@ namespace ComplexApi.Controllers
         }
         private bool ComplexAvailable(int id)
         {
-            return (_dbContext.Complex?.Any(x => x.Id == id)).GetValueOrDefault();
+            return (_repository.Complex?.Any(x => x.Id == id)).GetValueOrDefault();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComplex(int id)
         {
-            if(_dbContext.Complex == null)
+            if(_repository.Complex == null)
             {
                 return NotFound();
             }
-            var complex = await _dbContext.Complex.FindAsync(id);
+            var complex = await _repository.Complex.FindAsync(id);
             if (complex == null)
             {
                 return NotFound();
             }
-            _dbContext.Complex.Remove(complex);
-            await _dbContext.SaveChangesAsync();
+            _repository.Complex.Remove(complex);
+            await _repository.SaveChangesAsync();
 
             return Ok();
         }

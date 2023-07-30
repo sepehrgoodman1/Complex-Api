@@ -1,32 +1,34 @@
-﻿using ComplexApi.Dtos;
-using ComplexApi.ComplexApi;
+﻿using Apis.Dtos;
+using ComplexApi.Dtos;
+using Ef.Persistence.ComplexProject;
+using Ef.Persistence.ComplexProject.Blocks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ComplexApi.Controllers
+namespace Apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class BlockController : ControllerBase
     {
-        private readonly EFDataContext _dbContext;
+        private readonly IBlockRepository _repository;
 
-        public BlockController(EFDataContext dbContext)
+        public BlockController(IBlockRepository dbContext)
         {
-            _dbContext = dbContext;
+            _repository = dbContext;
         }
 
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Get_BlocksDto>>> GetBlockList()
         {
-            if (_dbContext.Complex == null)
+            if (_repository.Complex == null)
             {
                 return NotFound();
             }
 
-            var block = from b in _dbContext.Block
+            var block = from b in _repository.Block
                           select new Get_BlocksDto()
                           {
                               Name = b.Name,
@@ -41,14 +43,14 @@ namespace ComplexApi.Controllers
         [HttpGet("GetBy/{id:int}")]
         public async Task<ActionResult<Get_One_BlockDto>> GetBlock(int id)
         {
-            if (_dbContext.Block == null)
+            if (_repository.Block == null)
             {
                 return NotFound();
             }
 
 
 
-            var block = await _dbContext.Block.Select(b =>
+            var block = await _repository.Block.Select(b =>
                                                   new Get_One_BlockDto()
                                                   {
                                                       Id = b.Id,
@@ -67,7 +69,7 @@ namespace ComplexApi.Controllers
         [HttpGet("GetBy/{name}")]
         public async Task<ActionResult<IEnumerable<Get_BlocksDto>>> GetBlockist(string name)
         {
-            IQueryable<Block> query = _dbContext.Block;
+            IQueryable<Block> query = _repository.Block;
 
             if (!string.IsNullOrEmpty(name))
             {
@@ -97,12 +99,12 @@ namespace ComplexApi.Controllers
                 ComplexId = dto.ComplexId,
             };
 
-            if(!_dbContext.Complex.Any(x=>x.Id == block.ComplexId))
+            if(!_repository.Complex.Any(x=>x.Id == block.ComplexId))
             {
                 return NotFound("ComplexId Not Found!");
             }
 
-            var complex = await _dbContext.Complex.Include(b => b.Blocks).FirstOrDefaultAsync(x => x.Id == block.ComplexId);
+            var complex = await _repository.Complex.Include(b => b.Blocks).FirstOrDefaultAsync(x => x.Id == block.ComplexId);
 
             if (complex.Blocks.Select(b => b.Name).Contains(block.Name))
             {
@@ -114,9 +116,9 @@ namespace ComplexApi.Controllers
                 return BadRequest("Number of Units Must be More than one unit");
             }
 
-            _dbContext.Block.Add(block);
+            _repository.Block.Add(block);
 
-            await _dbContext.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetBlockList), new { id = block.Id }, block);
         }
@@ -125,7 +127,7 @@ namespace ComplexApi.Controllers
         public async Task<IActionResult> UpdateBlock(int id, UpdateBlockDto BlockDto)
         {
 
-            var block = await _dbContext.Block.FindAsync(id);
+            var block = await _repository.Block.FindAsync(id);
 
             if (block == null)
             {
@@ -142,9 +144,9 @@ namespace ComplexApi.Controllers
                 return BadRequest("Number of Units Must be Greater than one");
             }
 
-            _dbContext.Entry(block).State = EntityState.Modified;
+            _repository.Entry(block).State = EntityState.Modified;
 
-            var thisBlock = await _dbContext.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == block.Id);
+            var thisBlock = await _repository.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == block.Id);
 
             if (thisBlock.Units.Any())
             {
@@ -152,7 +154,7 @@ namespace ComplexApi.Controllers
 
             }
 
-            var listUnits = await _dbContext.Unit.ToListAsync();
+            var listUnits = await _repository.Unit.ToListAsync();
 
             int CounterUnits = 0;
 
@@ -170,7 +172,7 @@ namespace ComplexApi.Controllers
 
             try
             {
-                await _dbContext.SaveChangesAsync();
+                await _repository.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -188,7 +190,7 @@ namespace ComplexApi.Controllers
         }
         private bool blockAvailable(int id)
         {
-            return (_dbContext.Block?.Any(x => x.Id == id)).GetValueOrDefault();
+            return (_repository.Block?.Any(x => x.Id == id)).GetValueOrDefault();
         }
 
 

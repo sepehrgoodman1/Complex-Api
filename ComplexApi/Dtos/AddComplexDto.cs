@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ComplexApi.Dtos
+namespace Apis.Dtos
 {
     public class AddComplexDto
     {

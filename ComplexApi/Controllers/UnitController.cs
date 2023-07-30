@@ -1,36 +1,30 @@
 ﻿using Apis.Dtos;
-using ComplexApi.Dtos;
-using ComplexApi.ComplexApi;
-using Microsoft.AspNetCore.Http;
+using Ef.Persistence.ComplexProject.Units;
+using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace ComplexApi.Controllers
+namespace Apis.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class UnitController : ControllerBase
     {
-        private readonly EFDataContext _dbContext;
+        private readonly IUnitRepository _repository;
 
-        public UnitController(EFDataContext dbContext)
+        public UnitController(IUnitRepository repository)
         {
-            _dbContext = dbContext;
+            _repository = repository;
         }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Get_UnitsDto>>> GetUnitList()
         {
-            if (_dbContext.Unit == null)
+            if (_repository.DataIsEmpty())
             {
                 return NotFound();
             }
 
-            var unit = from b in _dbContext.Unit
-                          select new Get_UnitsDto()
-                          {
-                              Tenant = b.Tenant,
-                              TypeHouse= b.TypeHouse,
-                          };
+            var unit = 
 
             return await unit.ToListAsync();
         }
@@ -50,22 +44,22 @@ namespace ComplexApi.Controllers
                 return BadRequest("Unit Type Must Be Only 'Owner', 'Tenant' or 'Anonymous'");
             }
 
-            if (!_dbContext.Block.Any(x=> x.Id == unit.BlockId))
+            if (!await _repository.BlockIdDoesExist(unit.BlockId))
             {
                 return BadRequest("Block Id Does Not Exist");
             }
 
 
-            var block = await _dbContext.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == unit.BlockId);
+            var block = await _repository.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == unit.BlockId);
 
             if (block.Units.Select(b => b.Tenant).Contains(unit.Tenant))
             {
                 return BadRequest("Unit Name Already Exist In Block");
             }
 
-            _dbContext.Unit.Add(unit);
+            _repository.Unit.Add(unit);
 
-            await _dbContext.SaveChangesAsync();
+            await _repository.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetUnitList), new { id = unit.Id }, unit);
         }

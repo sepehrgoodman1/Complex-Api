@@ -1,4 +1,4 @@
-﻿namespace ComplexApi.Dtos
+﻿namespace Apis.Dtos
 {
     public class UpdateComplexDto
     {

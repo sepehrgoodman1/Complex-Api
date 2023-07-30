@@ -1,4 +1,4 @@
-﻿namespace ComplexApi.ComplexApi
+﻿namespace Entity.Entyties
 {
     public class Unit
     {

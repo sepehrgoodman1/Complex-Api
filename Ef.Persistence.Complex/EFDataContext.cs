@@ -1,7 +1,7 @@
-﻿using ComplexApi.ComplexApi;
+﻿using Entity.Entyties;
 using Microsoft.EntityFrameworkCore;
 
-namespace ComplexApi.ComplexApi
+namespace Ef.Persistence.ComplexProject
 {
     public class EFDataContext :DbContext
     {

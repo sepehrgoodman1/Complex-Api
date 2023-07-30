@@ -1,7 +1,7 @@
 ﻿using ComplexApi.ComplexApi;
 using System.Text.Json.Serialization;
 
-namespace ComplexApi.Dtos
+namespace Apis.Dtos
 {
     public class Get_Complex_And_CountBlock
     {
