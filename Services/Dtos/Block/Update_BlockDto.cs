@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Apis.Dtos
+namespace Services.Dtos.Block
 {
-    public class UpdateBlockDto
+    public class Update_BlockDto
     {
         public string Name { get; set; }
 

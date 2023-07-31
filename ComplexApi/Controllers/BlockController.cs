@@ -1,10 +1,12 @@
-﻿using Apis.Dtos;
-using ComplexApi.Dtos;
+﻿
 using Ef.Persistence.ComplexProject;
 using Ef.Persistence.ComplexProject.Blocks;
+using Entity.Entyties;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services.Dtos.Block;
+using System.Numerics;
 
 namespace Apis.Controllers
 {
@@ -23,74 +25,41 @@ namespace Apis.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Get_BlocksDto>>> GetBlockList()
         {
-            if (_repository.Complex == null)
+            if (!  _repository.BlocksExist())
             {
                 return NotFound();
             }
 
-            var block = from b in _repository.Block
-                          select new Get_BlocksDto()
-                          {
-                              Name = b.Name,
-                              NumberUnits = b.NumberUnits,
-                              RegisteredUnits = b.Units.Count(),
-                              NotRegistedredUnits = b.NumberUnits - b.Units.Count()
-                          };
-
-            return await block.ToListAsync();
+            return await _repository.GetAllBlocks();
         }
 
         [HttpGet("GetBy/{id:int}")]
         public async Task<ActionResult<Get_One_BlockDto>> GetBlock(int id)
         {
-            if (_repository.Block == null)
+            if (!_repository.BlocksExist())
             {
                 return NotFound();
             }
 
-
-
-            var block = await _repository.Block.Select(b =>
-                                                  new Get_One_BlockDto()
-                                                  {
-                                                      Id = b.Id,
-                                                      Name = b.Name,
-                                                      UnitDetails = b.Units.Select(u=> new {u.Tenant, u.TypeHouse})
-                                                  }).SingleOrDefaultAsync(c => c.Id == id);
-
+            var block = _repository.GetBlocksById(id);
 
             if (block == null)
             {
                 return NotFound("Block With this id does not Exist!");
             }
 
-            return block;
+            return await block;
         }
         [HttpGet("GetBy/{name}")]
-        public async Task<ActionResult<IEnumerable<Get_BlocksDto>>> GetBlockist(string name)
+        public async Task<ActionResult<List<Get_BlocksDto>>> GetBlockist(string name)
         {
-            IQueryable<Block> query = _repository.Block;
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(e => e.Name.Contains(name));
-            }
-
-            var complex = from b in query
-                          select new Get_BlocksDto()
-                          {
-                              Name = b.Name,
-                              NumberUnits = b.NumberUnits,
-                              RegisteredUnits = b.Units.Count(),
-                              NotRegistedredUnits = b.NumberUnits - b.Units.Count()
-                          };
-
-
-            return await complex.ToListAsync();
+            var blocks = _repository.FindBlockByName(name);
+            
+            return await blocks;
         }
 
         [HttpPost]
-        public async Task<ActionResult<Block>> PostBlock(AddBlockDto dto)
+        public async Task<ActionResult<Block>> PostBlock(Add_BlockDto dto)
         {
             var block = new Block
             {
@@ -99,16 +68,14 @@ namespace Apis.Controllers
                 ComplexId = dto.ComplexId,
             };
 
-            if(!_repository.Complex.Any(x=>x.Id == block.ComplexId))
+            if(! await _repository.ComplexIdExist(block.ComplexId))
             {
                 return NotFound("ComplexId Not Found!");
             }
 
-            var complex = await _repository.Complex.Include(b => b.Blocks).FirstOrDefaultAsync(x => x.Id == block.ComplexId);
-
-            if (complex.Blocks.Select(b => b.Name).Contains(block.Name))
+            if ( await _repository.CheckBlockName(block.Id, block.Name))
             {
-                return  BadRequest("Block Name Already Exist In Complex");
+                return BadRequest("Block Name Already Exist In Complex");
             }
 
             if (block.NumberUnits < 1)
@@ -116,18 +83,16 @@ namespace Apis.Controllers
                 return BadRequest("Number of Units Must be More than one unit");
             }
 
-            _repository.Block.Add(block);
-
-            await _repository.SaveChangesAsync();
+            _repository.AddBlock(block);
 
             return CreatedAtAction(nameof(GetBlockList), new { id = block.Id }, block);
         }
 
         [HttpPatch]
-        public async Task<IActionResult> UpdateBlock(int id, UpdateBlockDto BlockDto)
+        public async Task<IActionResult> UpdateBlock(int id, Update_BlockDto BlockDto)
         {
 
-            var block = await _repository.Block.FindAsync(id);
+            var block = await _repository.FindBlock(id);
 
             if (block == null)
             {
@@ -143,18 +108,20 @@ namespace Apis.Controllers
             {
                 return BadRequest("Number of Units Must be Greater than one");
             }
+           
+            _repository.SetEntry(block);
 
-            _repository.Entry(block).State = EntityState.Modified;
+            /*var thisBlock = await _repository.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == block.Id);*/
 
-            var thisBlock = await _repository.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == block.Id);
-
-            if (thisBlock.Units.Any())
+            if (block.Units.Any())
             {
                 return BadRequest("For this block unit registered before! you cant change number of units.");
 
             }
 
-            var listUnits = await _repository.Unit.ToListAsync();
+
+
+           /* var listUnits = await _repository.Unit.ToListAsync();
 
             int CounterUnits = 0;
 
@@ -164,34 +131,19 @@ namespace Apis.Controllers
                 {
                     CounterUnits++;
                 }
-            }
-            if (CounterUnits > 0)
+            }*/
+            if (await _repository.CheckUnits(block.Id))
             {
                 return BadRequest("For this block unit registered before! you cant change number of units.");
             }
 
-            try
-            {
-                await _repository.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!blockAvailable(block.Id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+            _repository.SaveBlock();
 
-            }
+            
+         
             return Ok();
         }
-        private bool blockAvailable(int id)
-        {
-            return (_repository.Block?.Any(x => x.Id == id)).GetValueOrDefault();
-        }
+   
 
 
 

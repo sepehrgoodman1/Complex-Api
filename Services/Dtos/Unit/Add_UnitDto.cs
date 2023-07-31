@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Apis.Dtos
+namespace Services.Dtos.Unit
 {
-    public class AddUnitDto
+    public class Add_UnitDto
     {
         [Required] public string Tenant { get; set; }
         [Required] public string TypeHouse { get; set; }

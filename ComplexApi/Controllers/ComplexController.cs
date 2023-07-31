@@ -1,5 +1,4 @@
-﻿using Apis.Dtos;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -7,6 +6,8 @@ using System.Drawing.Drawing2D;
 using System.Reflection;
 using System.Security.Cryptography.Xml;
 using Ef.Persistence.ComplexProject.Complexes;
+using Services.Dtos.Complex;
+using Entity.Entyties;
 
 namespace Apis.Controllers
 {
@@ -25,20 +26,13 @@ namespace Apis.Controllers
         [HttpGet("Complexes-With-RegistedUnit")]
         public async Task<ActionResult<IEnumerable<Get_ComplexDto>>> GetComplexList()
         {
-            if(_repository.Complex == null)
+            if(await _repository.complexIsNull())
             {
                 return NotFound();
             }
 
 
-            var complex = from c in _repository.Complex
-                          select new Get_ComplexDto()
-                          {
-                              Id = c.Id,
-                              Name = c.Name,
-                              RegisteredUnits = c.Blocks.SelectMany(u=>u.Units).Count(),
-                              NotRegistedredUnits = c.NumberUnits - c.Blocks.SelectMany(u => u.Units).Count()
-                          };
+            var complex = await _repository.GetComplexRegUnit();
 
 
             if (!complex.Any())
@@ -46,24 +40,19 @@ namespace Apis.Controllers
                 return NotFound();
             }
 
-            return await complex.ToListAsync();
+            return  complex;
         }
 
         [HttpGet("Complexes-Detail-Blocks")]
         public async Task<ActionResult<IEnumerable<Get_Coplexes_Detail_BlocksDto>>> GetComplexWithDetailBlocks()
         {
-            if (_repository.Complex == null)
+            if (await _repository.complexIsNull())
             {
                 return NotFound();
             }
 
 
-            var complex = from c in _repository.Complex
-                          select new Get_Coplexes_Detail_BlocksDto()
-                          {
-                              Name = c.Name,
-                              BlockDetails = c.Blocks.Select( block => new { block.Name, block.NumberUnits })
-                          };
+            var complex = await _repository.GetComplexDetailBlock();
 
             if (!complex.Any())
             {
@@ -71,7 +60,7 @@ namespace Apis.Controllers
             }
 
 
-            return await complex.ToListAsync();
+            return complex;
         }
 
 
@@ -80,53 +69,37 @@ namespace Apis.Controllers
         [HttpGet("Complex-And-Number-Blocks/{id:int}")]
         public async Task<ActionResult<Get_Complex_And_CountBlock>> GetComplexAndBlock(int id)
         {
-            if (_repository.Complex == null)
+            if (await _repository.complexIsNull())
             {
                 return NotFound();
             }
 
 
-            var complex = await _repository.Complex.Select(c =>
-                                                   new Get_Complex_And_CountBlock()
-                                                   {
-                                                       Id = c.Id,
-                                                       Name = c.Name,
-                                                       RegisteredUnits = c.Blocks.SelectMany(u => u.Units).Count(),
-                                                       NotRegistedredUnits = c.NumberUnits - c.Blocks.SelectMany(u => u.Units).Count(),
-                                                       NumberOfBlocks = c.Blocks.Count()
-                                                   }).SingleOrDefaultAsync(b => b.Id == id);
+            var complex = await _repository.GetComplexCountBlocks(id);
 
             if (complex == null)
             {
                 return NotFound();
             }
 
-            return complex;
+            return  complex;
         }
 
         [HttpGet("GetBy/{id:int}")]
         public async Task<ActionResult<Get_ComplexDto>> GetComplexList(int id)
         {
-            if (_repository.Complex == null)
+            if (await _repository.complexIsNull())
             {
                 return NotFound();
             }
-       
 
-            var complex = await _repository.Complex.Select(c =>
-                                                   new Get_ComplexDto()
-                                                   {
-                                                       Id = c.Id,
-                                                       Name = c.Name,
-                                                       RegisteredUnits = c.Blocks.SelectMany(u => u.Units).Count(),
-                                                       NotRegistedredUnits = c.NumberUnits - c.Blocks.SelectMany(u => u.Units).Count()
-                                                   }).SingleOrDefaultAsync(b => b.Id == id);
+
+            var complex = await _repository.GetComplexById(id);
             
             if(complex == null)
             {
                 return NotFound();
             }
-
 
             return complex;
         }
@@ -134,31 +107,16 @@ namespace Apis.Controllers
 
 
         [HttpGet("GetBy/{name}")]
-        public async Task<ActionResult<IEnumerable<Get_ComplexDto>>> GetComplexList( string name)
+        public async Task<ActionResult<List<Get_ComplexDto>>> GetComplexList( string name)
         {
-            IQueryable<Complex> query = _repository.Complex;
-
-            if (!string.IsNullOrEmpty(name))
-            {
-                query = query.Where(e => e.Name.Contains(name));
-            }
-
-            var complex = from c in query
-                          select new Get_ComplexDto()
-                          {
-                              Id = c.Id,
-                              Name = c.Name,
-                              RegisteredUnits = c.Blocks.SelectMany(u => u.Units).Count(),
-                              NotRegistedredUnits = c.NumberUnits - c.Blocks.SelectMany(u => u.Units).Count()
-                          };
-
+            var complex = await _repository.FindComplexByName(name);
 
             if (!complex.Any())
             {
                 return NotFound();
             }
 
-            return await complex.ToListAsync();
+            return  complex;
         }
 
 
@@ -176,10 +134,8 @@ namespace Apis.Controllers
             {
                 return BadRequest("Number of Units Must be between 4 and 1000");
             }
-            
-            _repository.Complex.Add(complex);
 
-            await _repository.SaveChangesAsync();
+            _repository.AddComplex(complex);
 
             return CreatedAtAction(nameof(GetComplexList), new {id = complex.Id}, complex);
         }
@@ -188,8 +144,7 @@ namespace Apis.Controllers
         [HttpPatch]
         public async Task<IActionResult> PutComplex( int id , UpdateComplexDto complexDto)
         {
-
-            var complex = await _repository.Complex.Include(c => c.Blocks).ThenInclude(c => c.Units).FirstAsync(x=>x.Id == id);
+            var complex = await _repository.GetAllComplexWithUnits(id);
 
             if (complex == null)
             {
@@ -201,47 +156,30 @@ namespace Apis.Controllers
                 return BadRequest("for this complex there is registered unit, you cant change number of units!");
             }
 
-
             complex.NumberUnits = complexDto.NumberUnits;
-            
-            _repository.Entry(complex).State = EntityState.Modified;
 
-            try
-            {
-                await _repository.SaveChangesAsync();
-            }
-            catch(DbUpdateConcurrencyException)
-            {
-                if (ComplexAvailable(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            _repository.SetEntry(complex);
+          
             return Ok();
         }
-        private bool ComplexAvailable(int id)
-        {
-            return (_repository.Complex?.Any(x => x.Id == id)).GetValueOrDefault();
-        }
+    
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteComplex(int id)
         {
-            if(_repository.Complex == null)
+            if (await _repository.complexIsNull())
             {
                 return NotFound();
             }
-            var complex = await _repository.Complex.FindAsync(id);
+
+            var complex = await _repository.FindComplexById(id);
+
             if (complex == null)
             {
                 return NotFound();
             }
-            _repository.Complex.Remove(complex);
-            await _repository.SaveChangesAsync();
+
+            _repository.RemoveComplex(complex);
 
             return Ok();
         }

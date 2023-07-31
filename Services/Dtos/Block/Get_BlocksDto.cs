@@ -1,6 +1,5 @@
-﻿using ComplexApi.ComplexApi;
-
-namespace Apis.Dtos
+﻿
+namespace Services.Dtos.Block
 {
     public class Get_BlocksDto
     {

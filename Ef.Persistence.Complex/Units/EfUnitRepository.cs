@@ -1,5 +1,7 @@
 ﻿using Entity.Entyties;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services.Dtos.Unit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,14 +28,44 @@ namespace Ef.Persistence.ComplexProject.Units
             else { return false; }
         }
 
-        public Task<object> GetAllUnits()
+     
+        public async Task<List<Get_UnitsDto>> GetAllUnits()
         {
-            return from b in _context.Unit
-                   select new Get_UnitsDto()
-                   {
-                       Tenant = b.Tenant,
-                       TypeHouse = b.TypeHouse,
-                   };
+            var units =  from b in _context.Unit
+                    select  new Get_UnitsDto()
+                    {
+                        Tenant = b.Tenant,
+                        TypeHouse = b.TypeHouse,
+                    };
+
+            return await units.ToListAsync();
+        }
+
+        public Unit SetUnit(Add_UnitDto dto)
+        {
+            var unit = new Unit
+            {
+                Tenant = dto.Tenant,
+                TypeHouse = dto.TypeHouse.ToUpper(),
+                BlockId = dto.BlockId,
+            };
+            return unit;
+        }
+
+        public async Task<bool> ExistUnitNameInBlock(int blockId, string tenant)
+        {
+            var block = await _context.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == blockId);
+
+            return  block.Units.Select(b => b.Tenant).Contains(tenant);
+        }
+
+
+        public async void AddUnit(Unit unit)
+        {
+            _context.Unit.Add(unit);
+
+            await _context.SaveChangesAsync();
+
         }
     }
 }

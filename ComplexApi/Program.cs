@@ -1,15 +1,17 @@
-using ComplexApi.ComplexApi;
+using Ef.Persistence.ComplexProject.Blocks;
 using Ef.Persistence.ComplexProject.Complexes;
+using Ef.Persistence.ComplexProject.Units;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 
-namespace Apis
-{
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<EFDataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped(IComplexRepository<>, EfComplexRepository);
+/*builder.Services.AddDbContext<EFDataContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+*/
+builder.Services.AddScoped<IComplexRepository, EfComplexRepository>();
+builder.Services.AddScoped<IBlockRepository, EfBlockRepository>();
+builder.Services.AddScoped<IUnitRepository, EfUnitRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -36,4 +38,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-}

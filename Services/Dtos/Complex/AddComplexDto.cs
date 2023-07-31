@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Apis.Dtos
+namespace Services.Dtos.Complex
 {
-    public class AddBlockDto
+    public class AddComplexDto
     {
         [Required] public string Name { get; set; }
         [Required] public int NumberUnits { get; set; }
-        [Required] public int ComplexId { get; set; }
     }
 }

@@ -1,8 +1,8 @@
-﻿using Apis.Dtos;
-using Ef.Persistence.ComplexProject.Units;
+﻿using Ef.Persistence.ComplexProject.Units;
 using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services.Dtos.Unit;
 
 namespace Apis.Controllers
 {
@@ -24,20 +24,13 @@ namespace Apis.Controllers
                 return NotFound();
             }
 
-            var unit = 
-
-            return await unit.ToListAsync();
+            return await _repository.GetAllUnits();
         }
 
         [HttpPost]
-        public async Task<ActionResult<Unit>> PostUnit(AddUnitDto dto)
+        public async Task<ActionResult<Unit>> PostUnit(Add_UnitDto dto)
         {
-            var unit = new Unit
-            {
-                Tenant = dto.Tenant,
-                TypeHouse = dto.TypeHouse.ToUpper(),
-                BlockId = dto.BlockId,
-            };
+            var unit = _repository.SetUnit(dto);
           
             if(!Enum.IsDefined(typeof(TypeOfUnits), unit.TypeHouse))
             {
@@ -49,26 +42,15 @@ namespace Apis.Controllers
                 return BadRequest("Block Id Does Not Exist");
             }
 
-
-            var block = await _repository.Block.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == unit.BlockId);
-
-            if (block.Units.Select(b => b.Tenant).Contains(unit.Tenant))
+            if (await _repository.ExistUnitNameInBlock(unit.BlockId, unit.Tenant))
             {
                 return BadRequest("Unit Name Already Exist In Block");
             }
 
-            _repository.Unit.Add(unit);
-
-            await _repository.SaveChangesAsync();
+            _repository.AddUnit(unit);
 
             return CreatedAtAction(nameof(GetUnitList), new { id = unit.Id }, unit);
         }
-
-      
-    
-
-
-
 
     }
 }
