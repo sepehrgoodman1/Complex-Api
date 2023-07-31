@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Services.Dtos.Block
+namespace Services.Blocks.Contracts.Dtos
 {
     public class Get_One_BlockDto
     {

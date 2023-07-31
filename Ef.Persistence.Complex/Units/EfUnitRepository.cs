@@ -1,7 +1,8 @@
 ﻿using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Services.Dtos.Unit;
+using Services.Units.Contracts;
+using Services.Units.Contracts.Dtos.Unit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Ef.Persistence.ComplexProject.Units
 {
-    public class EfUnitRepository :IUnitRepository
+    public class EfUnitRepository :UnitRepository
     {
         private readonly EFDataContext _context;
 

@@ -1,4 +1,4 @@
-﻿namespace Services.Dtos.Complex
+﻿namespace Services.Complexes.Contracts.Dtos
 {
     public class Get_Coplexes_Detail_BlocksDto
     {

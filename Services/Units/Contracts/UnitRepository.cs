@@ -1,15 +1,15 @@
 ﻿using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
-using Services.Dtos.Unit;
+using Services.Units.Contracts.Dtos.Unit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ef.Persistence.ComplexProject.Units
+namespace Services.Units.Contracts
 {
-    public interface IUnitRepository
+    public interface UnitRepository
     {
         Task<bool> BlockIdDoesExist(int blockId);
         bool DataIsEmpty();

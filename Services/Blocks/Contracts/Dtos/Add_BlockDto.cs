@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Services.Dtos.Block
+namespace Services.Blocks.Contracts.Dtos
 {
     public class Add_BlockDto
     {

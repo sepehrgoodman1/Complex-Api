@@ -1,16 +1,15 @@
 ﻿using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
-using Services.Dtos.Block;
-using Services.Dtos.Complex;
+using Services.Complexes.Contracts.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Ef.Persistence.ComplexProject.Complexes
+namespace Services.Complexes.Contracts
 {
-    public interface IComplexRepository
+    public interface ComplexRepository
     {
         Task<bool> complexIsNull();
         Task<List<Get_ComplexDto>> GetComplexRegUnit();
@@ -20,8 +19,8 @@ namespace Ef.Persistence.ComplexProject.Complexes
         Task<List<Get_ComplexDto>> FindComplexByName(string name);
         void AddComplex(Complex complex);
         Task<Complex> GetAllComplexWithUnits(int id);
-        void SetEntry(Complex complex);
+        void Update(Complex complex);
         Task<Complex> FindComplexById(int id);
-        void RemoveComplex(Complex complex);
+        void Remove(Complex complex);
     }
 }

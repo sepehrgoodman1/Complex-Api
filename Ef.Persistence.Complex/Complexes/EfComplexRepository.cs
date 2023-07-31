@@ -1,8 +1,8 @@
 ﻿using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Services.Dtos.Block;
-using Services.Dtos.Complex;
+using Services.Complexes.Contracts;
+using Services.Complexes.Contracts.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Ef.Persistence.ComplexProject.Complexes
 {
-    public class EfComplexRepository : IComplexRepository
+    public class EfComplexRepository : ComplexRepository
     {
         private readonly EFDataContext _context;
 
@@ -116,9 +116,9 @@ namespace Ef.Persistence.ComplexProject.Complexes
 
             return complex;
         }
-        public void SetEntry(Complex complex)
+        public void Update(Complex complex)
         {
-            _context.Entry(complex).State = EntityState.Modified;
+            _context.Update(complex);
             _context.SaveChangesAsync();
 
         }
@@ -128,7 +128,7 @@ namespace Ef.Persistence.ComplexProject.Complexes
             return await _context.Complex.FindAsync(id);
         }
 
-        public async void RemoveComplex(Complex complex)
+        public async void Remove(Complex complex)
         {
             _context.Complex.Remove(complex);
             await _context.SaveChangesAsync();

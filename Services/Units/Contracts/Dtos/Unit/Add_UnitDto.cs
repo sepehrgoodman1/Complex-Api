@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Services.Dtos.Unit
+namespace Services.Units.Contracts.Dtos.Unit
 {
     public class Add_UnitDto
     {

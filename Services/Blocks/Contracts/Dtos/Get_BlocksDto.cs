@@ -1,5 +1,4 @@
-﻿
-namespace Services.Dtos.Block
+﻿namespace Services.Blocks.Contracts.Dtos
 {
     public class Get_BlocksDto
     {

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -6,8 +6,20 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<ItemGroup>
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+	</ItemGroup>
+	
+	
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />
+  </ItemGroup>
+	
+	
+  <ItemGroup>
+    <Folder Include="Blocks\Exceptions\" />
+    <Folder Include="Complexes\Exceptions\" />
+    <Folder Include="Units\Exceptions\" />
   </ItemGroup>
 
 </Project>

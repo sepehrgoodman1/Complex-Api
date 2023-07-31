@@ -1,4 +1,4 @@
-﻿namespace Services.Dtos.Unit
+﻿namespace Services.Units.Contracts.Dtos.Unit
 {
     public class Get_UnitsDto
     {

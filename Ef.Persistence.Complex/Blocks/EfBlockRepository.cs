@@ -2,7 +2,8 @@
 using Entity.Entyties;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Services.Dtos.Block;
+using Services.Blocks.Contracts.Dtos;
+using Services.Blocks.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +12,22 @@ using System.Threading.Tasks;
 
 namespace Ef.Persistence.ComplexProject.Blocks
 {
-    public class EfBlockRepository : IBlockRepository
+    public class EfBlockRepository : BlockRepository
     {
         private readonly EFDataContext _context;
 
+        public EfBlockRepository(EFDataContext context)
+        {
+            _context = context;
+        }
+
         public bool BlocksExist()
         {
-            return  _context.Block.Any();
+            if(_context.Block == null)
+            {
+                return false;
+            }
+            return true;
         }
         public async Task<List<Get_BlocksDto>> GetAllBlocks()
         {
@@ -45,7 +55,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
 
             return block;
         }
-        public async Task<ActionResult<List<Get_BlocksDto>>> FindBlockByName(string name)
+        public async Task<List<Get_BlocksDto>> FindBlockByName(string name)
         {
             IQueryable<Block> query = _context.Block;
 
@@ -95,9 +105,9 @@ namespace Ef.Persistence.ComplexProject.Blocks
             return block;
         }
 
-        public void SetEntry(Block block)
+        public void Update(Block block)
         {
-            _context.Entry(block).State = EntityState.Modified;
+            _context.Update(block);
 
         }
         public async Task<bool> CheckUnits(int BlockId)
