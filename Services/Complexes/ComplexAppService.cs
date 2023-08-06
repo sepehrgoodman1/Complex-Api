@@ -1,32 +1,27 @@
 ﻿using Entity.Entyties;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Services.Complexes.Contracts;
 using Services.Complexes.Contracts.Dtos;
 using Services.Complexes.Exceptions;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Taav.Contracts.Interfaces;
 
 namespace Services.Complexes
 {
-    public class ComplexAppService: ComplexService
+    public class ComplexAppService : ComplexService
     {
         private readonly ComplexRepository _repository;
+        private readonly UnitOfWork _unitOfWork;
 
-        public ComplexAppService(ComplexRepository repository)
+        public ComplexAppService(
+            ComplexRepository repository,
+            UnitOfWork unitOfWork)
         {
             _repository = repository;
+            this._unitOfWork = unitOfWork;
         }
 
-        public async Task<List<Get_ComplexDto>> GetAll_WithRegUnit()
+        public async Task<List<GetComplexDto>> GetAll_WithRegUnit()
         {
-            if (await _repository.IsNull())
-            {
-                throw new ComplexNotFoundException();
-            }
             var complex = await _repository.GetWithNumRegisteredUnits();
 
             if (!complex.Any())
@@ -36,13 +31,8 @@ namespace Services.Complexes
 
             return complex;
         }
-        public async Task<List<Get_Coplexes_Detail_BlocksDto>> GetAll_WithBlockDetail()
+        public async Task<List<GetCoplexesDetailBlocksDto>> GetAll_WithBlockDetail()
         {
-            if (await _repository.IsNull())
-            {
-                throw new ComplexNotFoundException();
-            }
-
             var complex = await _repository.GetComplexDetailBlock();
 
             if (!complex.Any())
@@ -52,12 +42,8 @@ namespace Services.Complexes
 
             return complex;
         }
-        public async Task<Get_Complex_And_CountBlock> GetById_WithNumBlocks(int id)
+        public async Task<GetComplexAndCountBlock> GetById_WithNumBlocks(int id)
         {
-            if (await _repository.IsNull())
-            {
-                throw new ComplexNotFoundException();
-            }
             var complex = await _repository.GetComplexCountBlocks(id);
 
             if (complex == null)
@@ -67,13 +53,8 @@ namespace Services.Complexes
             return complex;
 
         }
-        public async Task<Get_ComplexDto> GetById(int id)
+        public async Task<GetComplexDto> GetById(int id)
         {
-            if (await _repository.IsNull())
-            {
-                throw new ComplexNotFoundException();
-            }
-
 
             var complex = await _repository.GetAllWithRegUnit(id);
 
@@ -84,7 +65,7 @@ namespace Services.Complexes
 
             return complex;
         }
-        public async Task<List<Get_ComplexDto>> GetByName(string name)
+        public async Task<List<GetComplexDto>> GetByName(string name)
         {
             var complex = await _repository.FindByName(name);
 
@@ -95,7 +76,7 @@ namespace Services.Complexes
 
             return complex;
         }
-        public  void Add(AddComplexDto dto)
+        public async Task<int> Add(AddComplexDto dto)
         {
             var complex = new Complex
             {
@@ -109,10 +90,11 @@ namespace Services.Complexes
             }
 
             _repository.Add(complex);
-
-       /*     return CreatedAtAction(nameof(GetComplexList), new { id = complex.Id }, complex);*/
+            await _unitOfWork.Complete();
+            return complex.Id;
+            /*     return CreatedAtAction(nameof(GetComplexList), new { id = complex.Id }, complex);*/
         }
-        public async void Update(int id, UpdateComplexDto complexDto)
+        public async Task Update(int id, UpdateComplexDto complexDto)
         {
             var complex = await _repository.GetComplexWithAllUnits(id);
 
@@ -124,29 +106,16 @@ namespace Services.Complexes
             if (complex.Blocks.SelectMany(x => x.Units).Any())
             {
                 throw new RegisteredUnitException();
-               /* return BadRequest("for this complex there is registered unit, you cant change number of units!");*/
-            }
+/*                return BadRequest("for this complex there is registered unit, you cant change number of units!");
+*/            }
 
             complex.NumberUnits = complexDto.NumberUnits;
+
             _repository.Update(complex);
+            await _unitOfWork.Complete();
         }
-        public async void Delete(int id)
-        {
-            if (await _repository.IsNull())
-            {
-                throw new ComplexNotFoundException();
-            }
-
-            var complex = await _repository.GetById(id);
-
-            if (complex == null)
-            {
-                throw new ComplexNotFoundException();
-            }
-
-            _repository.Remove(complex);
-
-        }
+      
+        
 
     }
 }

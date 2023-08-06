@@ -3,6 +3,7 @@ using Ef.Persistence.ComplexProject.Blocks;
 using Ef.Persistence.ComplexProject.Complexes;
 using Ef.Persistence.ComplexProject.Units;
 using Microsoft.EntityFrameworkCore;
+using Services;
 using Services.Blocks;
 using Services.Blocks.Contracts;
 using Services.Complexes;
@@ -10,6 +11,7 @@ using Services.Complexes.Contracts;
 using Services.Units;
 using Services.Units.Contracts;
 using System.Text.Json.Serialization;
+using Taav.Contracts.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,7 @@ builder.Services.AddScoped<UnitRepository, EfUnitRepository>();
 builder.Services.AddScoped<ComplexService, ComplexAppService>();
 builder.Services.AddScoped<BlockService, BlockAppService>();
 builder.Services.AddScoped<UnitService, UnitAppService>();
+builder.Services.AddScoped<UnitOfWork, EFUnitOfWork>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

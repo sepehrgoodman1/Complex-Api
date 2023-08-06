@@ -1,6 +1,6 @@
 ﻿namespace Services.Complexes.Contracts.Dtos
 {
-    public class Get_Coplexes_Detail_BlocksDto
+    public class GetCoplexesDetailBlocksDto
     {
         public string Name { get; set; }
         public object BlockDetails { get; set; }

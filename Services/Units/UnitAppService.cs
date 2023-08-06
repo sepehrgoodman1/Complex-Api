@@ -1,33 +1,26 @@
-﻿using Entity.Entyties;
-using Services.Units.Contracts;
-using Services.Units.Contracts.Dtos.Unit;
+﻿using Services.Units.Contracts;
+using Services.Units.Contracts.Dtos;
 using Services.Units.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Taav.Contracts.Interfaces;
 
 namespace Services.Units
 {
     public class UnitAppService :UnitService
     {
         private readonly UnitRepository _repository;
+        private readonly UnitOfWork _unitOfWork;
 
-        public UnitAppService(UnitRepository repository)
+        public UnitAppService(UnitRepository repository, UnitOfWork unitOfWork)
         {
             _repository = repository;
+            _unitOfWork = unitOfWork;
         }
-        public async Task<List<Get_UnitsDto>> GetAll()
+        public async Task<List<GetUnitsDto>> GetAll()
         {
-            if (_repository.DataIsEmpty())
-            {
-                throw new NotFoundException();
-            }
 
             return await _repository.GetAllUnits();
         }
-        public async void Add(Add_UnitDto dto)
+        public async Task<int> Add(AddUnitDto dto)
         {
             var unit = _repository.SetUnit(dto);
 
@@ -48,6 +41,10 @@ namespace Services.Units
             }
 
             _repository.Add(unit);
+
+            await _unitOfWork.Complete();
+
+            return unit.Id;
         }
     }
 }

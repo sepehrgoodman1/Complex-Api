@@ -13,6 +13,7 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />
+    <ProjectReference Include="C:\Users\digi max\Downloads\00.package\Taav.Contracts\Taav.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

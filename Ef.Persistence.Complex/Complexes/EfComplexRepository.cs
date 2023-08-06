@@ -1,13 +1,7 @@
 ﻿using Entity.Entyties;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Services.Complexes.Contracts;
 using Services.Complexes.Contracts.Dtos;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Ef.Persistence.ComplexProject.Complexes
 {
@@ -20,19 +14,12 @@ namespace Ef.Persistence.ComplexProject.Complexes
             _context = context;
         }
 
-        public async Task<bool> IsNull()
-        {
-            if ( _context.Complex== null)
-            {
-                return true;
-            }
-            else return false;
-        }
+      
 
-        public async Task<List<Get_ComplexDto>> GetWithNumRegisteredUnits()
+        public async Task<List<GetComplexDto>> GetWithNumRegisteredUnits()
         {
             var complex = from c in _context.Complex
-                          select new Get_ComplexDto()
+                          select new GetComplexDto()
                           {
                               Id = c.Id,
                               Name = c.Name,
@@ -42,10 +29,10 @@ namespace Ef.Persistence.ComplexProject.Complexes
 
             return await complex.ToListAsync();
         }
-        public async Task<List<Get_Coplexes_Detail_BlocksDto>> GetComplexDetailBlock()
+        public async Task<List<GetCoplexesDetailBlocksDto>> GetComplexDetailBlock()
         {
             var complex = from c in _context.Complex
-                          select new Get_Coplexes_Detail_BlocksDto()
+                          select new GetCoplexesDetailBlocksDto()
                           {
                               Name = c.Name,
                               BlockDetails = c.Blocks.Select(block => new { block.Name, block.NumberUnits })
@@ -54,10 +41,10 @@ namespace Ef.Persistence.ComplexProject.Complexes
             return await complex.ToListAsync();
         }
 
-        public async Task<Get_Complex_And_CountBlock> GetComplexCountBlocks(int id)
+        public async Task<GetComplexAndCountBlock> GetComplexCountBlocks(int id)
         {
             var complex = await _context.Complex.Select(c =>
-                                                   new Get_Complex_And_CountBlock()
+                                                   new GetComplexAndCountBlock()
                                                    {
                                                        Id = c.Id,
                                                        Name = c.Name,
@@ -68,10 +55,10 @@ namespace Ef.Persistence.ComplexProject.Complexes
             return  complex;
         }
 
-        public async Task<Get_ComplexDto> GetAllWithRegUnit(int id)
+        public async Task<GetComplexDto> GetAllWithRegUnit(int id)
         {
             var complex = await _context.Complex.Select(c =>
-                                                new Get_ComplexDto()
+                                                new GetComplexDto()
                                                 {
                                                     Id = c.Id,
                                                     Name = c.Name,
@@ -82,7 +69,7 @@ namespace Ef.Persistence.ComplexProject.Complexes
             return complex;
         }
 
-        public async Task<List<Get_ComplexDto>> FindByName(string name)
+        public async Task<List<GetComplexDto>> FindByName(string name)
         {
 
             IQueryable<Complex> query = _context.Complex;
@@ -93,7 +80,7 @@ namespace Ef.Persistence.ComplexProject.Complexes
             }
 
             var complex = from c in query
-                          select new Get_ComplexDto()
+                          select new GetComplexDto()
                           {
                               Id = c.Id,
                               Name = c.Name,
@@ -110,21 +97,17 @@ namespace Ef.Persistence.ComplexProject.Complexes
         public async void Add(Complex complex)
         {
             _context.Complex.Add(complex);
-
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Complex> GetComplexWithAllUnits(int id)
         {
-            var complex = await _context.Complex.Include(c => c.Blocks).ThenInclude(c => c.Units).FirstAsync(x=>x.Id == id);
+            var complex = await _context.Complex.Include(c => c.Blocks).ThenInclude(c => c.Units).FirstOrDefaultAsync(x => x.Id == id);
 
             return complex;
         }
-        public void Update(Complex complex)
+        public async Task Update(Complex complex)
         {
-            _context.Update(complex);
-            _context.SaveChangesAsync();
-
+              _context.Update(complex);
         }
 
         public async Task<Complex> GetById(int id)
@@ -132,10 +115,6 @@ namespace Ef.Persistence.ComplexProject.Complexes
             return await _context.Complex.FindAsync(id);
         }
 
-        public async void Remove(Complex complex)
-        {
-            _context.Complex.Remove(complex);
-            await _context.SaveChangesAsync();
-        }
+     
     }
 }

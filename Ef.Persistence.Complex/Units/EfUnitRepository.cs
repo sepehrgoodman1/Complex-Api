@@ -1,13 +1,7 @@
 ﻿using Entity.Entyties;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Services.Units.Contracts;
-using Services.Units.Contracts.Dtos.Unit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.Units.Contracts.Dtos;
 
 namespace Ef.Persistence.ComplexProject.Units
 {
@@ -25,20 +19,13 @@ namespace Ef.Persistence.ComplexProject.Units
             return await _context.Block.AnyAsync(x => x.Id == blockId);
         }
 
-        public bool DataIsEmpty()
-        {
-            if(_context.Unit == null)
-            {
-                return true;
-            }
-            else { return false; }
-        }
+
 
      
-        public async Task<List<Get_UnitsDto>> GetAllUnits()
+        public async Task<List<GetUnitsDto>> GetAllUnits()
         {
             var units =  from b in _context.Unit
-                    select  new Get_UnitsDto()
+                    select  new GetUnitsDto()
                     {
                         Tenant = b.Tenant,
                         TypeHouse = b.TypeHouse,
@@ -47,7 +34,7 @@ namespace Ef.Persistence.ComplexProject.Units
             return await units.ToListAsync();
         }
 
-        public Unit SetUnit(Add_UnitDto dto)
+        public Unit SetUnit(AddUnitDto dto)
         {
             var unit = new Unit
             {
@@ -66,12 +53,11 @@ namespace Ef.Persistence.ComplexProject.Units
         }
 
 
-        public async void Add(Unit unit)
+        public async Task<int> Add(Unit unit)
         {
             _context.Unit.Add(unit);
 
-            await _context.SaveChangesAsync();
-
+            return unit.Id;
         }
     }
 }

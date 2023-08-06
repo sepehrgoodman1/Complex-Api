@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services.Units.Contracts;
-using Services.Units.Contracts.Dtos.Unit;
+using Services.Units.Contracts.Dtos;
 
 namespace Apis.Controllers
 {
@@ -15,15 +15,15 @@ namespace Apis.Controllers
             _service = services;
         }
         [HttpGet]
-        public async Task<List<Get_UnitsDto>> GetAll()
+        public async Task<List<GetUnitsDto>> GetAll()
         {
             return await _service.GetAll();
         }
 
         [HttpPost]
-        public async void Add(Add_UnitDto dto)
+        public async Task<int> Add(AddUnitDto dto)
         {
-            _service.Add(dto);
+            return await _service.Add(dto);
 
           /*  return CreatedAtAction(nameof(GetUnitList), new { id = unit.Id }, unit);*/
         }

@@ -1,14 +1,8 @@
-﻿using Ef.Persistence.ComplexProject.Units;
-using Entity.Entyties;
-using Microsoft.AspNetCore.Mvc;
+﻿using Entity.Entyties;
 using Microsoft.EntityFrameworkCore;
 using Services.Blocks.Contracts.Dtos;
 using Services.Blocks.Contracts;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Taav.Contracts.Interfaces;
 
 namespace Ef.Persistence.ComplexProject.Blocks
 {
@@ -21,18 +15,11 @@ namespace Ef.Persistence.ComplexProject.Blocks
             _context = context;
         }
 
-        public bool BlocksExist()
+     
+        public async Task<IPageResult<GetBlocksDto>> GetAll(IPagination? pagination)
         {
-            if(_context.Block == null)
-            {
-                return false;
-            }
-            return true;
-        }
-        public async Task<List<Get_BlocksDto>> GetAll()
-        {
-            var block = from b in _context.Block
-                        select new Get_BlocksDto()
+            var block =  from b in _context.Block
+                        select new GetBlocksDto()
                         {
                             Name = b.Name,
                             NumberUnits = b.NumberUnits,
@@ -40,13 +27,15 @@ namespace Ef.Persistence.ComplexProject.Blocks
                             NotRegistedredUnits = b.NumberUnits - b.Units.Count()
                         };
 
-            return await block.ToListAsync();
+           /* 2.IsGreaterThen(5);*/
+
+            return await block.Paginate(pagination);
         }
 
-        public async Task<Get_One_BlockDto> GetById(int id)
+        public async Task<GetOneBlockDto> GetById(int id)
         {
             var block = await _context.Block.Select(b =>
-                                                  new Get_One_BlockDto()
+                                                  new GetOneBlockDto()
                                                   {
                                                       Id = b.Id,
                                                       Name = b.Name,
@@ -55,7 +44,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
 
             return block;
         }
-        public async Task<List<Get_BlocksDto>> FindByName(string name)
+        public async Task<List<GetBlocksDto>> FindByName(string name)
         {
             IQueryable<Block> query = _context.Block;
 
@@ -64,7 +53,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
                 query = query.Where(e => e.Name.Contains(name));
             }
             var blocks = from b in query
-                          select new Get_BlocksDto()
+                          select new GetBlocksDto()
                           {
                               Name = b.Name,
                               NumberUnits = b.NumberUnits,
@@ -96,7 +85,6 @@ namespace Ef.Persistence.ComplexProject.Blocks
         public async void Add(Block block)
         {
             _context.Block.Add(block);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Block> FindBlock(int BlockId)
@@ -105,9 +93,9 @@ namespace Ef.Persistence.ComplexProject.Blocks
             return block;
         }
 
-        public void Update(Block block)
+        public async Task Update(Block block)
         {
-            _context.Update(block);
+             _context.Block.Update(block);
 
         }
         public async Task<bool> CheckUnits(int BlockId)
@@ -130,9 +118,6 @@ namespace Ef.Persistence.ComplexProject.Blocks
             else return false;
         }
 
-        public async void SaveBlock()
-        {
-            await _context.SaveChangesAsync();
-        }
+      
     }
 }

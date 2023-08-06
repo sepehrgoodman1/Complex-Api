@@ -1,47 +1,30 @@
 ﻿using Entity.Entyties;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 using Services.Blocks.Contracts;
 using Services.Blocks.Contracts.Dtos;
 using Services.Blocks.Exceptions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Taav.Contracts.Interfaces;
 
 namespace Services.Blocks
 {
-
-
     public class BlockAppService : BlockService  
     {
         private readonly BlockRepository _repository;
 
-        public BlockAppService(BlockRepository repository)
+        private readonly UnitOfWork _unitOfWork;
+
+        public BlockAppService(BlockRepository repository, UnitOfWork unitOfWork)
         {
             _repository = repository;
+            _unitOfWork = unitOfWork;
         }
-       
-    
 
-        public async Task<IEnumerable<Get_BlocksDto>> GetAll()
+        public async Task<IPageResult<GetBlocksDto>> GetAll(IPagination? pagination)
         {
-            if (! _repository.BlocksExist())
-            {
-                throw new NotFoundException();
-            }
-
-            return await _repository.GetAll();
+            return await _repository.GetAll( pagination);
         }
-        public async Task<Get_One_BlockDto> GetById(int id)
+        public async Task<GetOneBlockDto> GetById(int id)
         {
-            if (!_repository.BlocksExist())
-            {
-                throw new NotFoundException();
-            }
-
+          
             var block = _repository.GetById(id);
 
             if (block == null)
@@ -52,13 +35,13 @@ namespace Services.Blocks
             return await block;
         }
 
-        public async Task<List<Get_BlocksDto>> GetByName(string name)
+        public async Task<List<GetBlocksDto>> GetByName(string name)
         {
             var block = await _repository.FindByName(name);
             return  block;
         }
 
-        public async void Add(Add_BlockDto dto)
+        public async Task<int> Add(AddBlockDto dto)
         {
             var block = new Block
             {
@@ -73,7 +56,7 @@ namespace Services.Blocks
                 /*return NotFound("ComplexId Not Found!");*/
             }
 
-            if (await _repository.CheckBlockName(block.Id, block.Name))
+            if (await _repository.CheckBlockName(block.ComplexId, block.Name))
             {
                 throw new DuplicateBlockNameException();
                /* return BadRequest("Block Name Already Exist In Complex");*/
@@ -87,11 +70,15 @@ namespace Services.Blocks
 
             _repository.Add(block);
 
+            await _unitOfWork.Complete();
+
+            return block.Id;
+
             /*_repository.Save*/
 
         }
 
-        public async void Update(int id, Update_BlockDto BlockDto)
+        public async Task Update(int id, UpdateBlockDto BlockDto)
         {
             var block = await _repository.FindBlock(id);
 
@@ -111,7 +98,6 @@ namespace Services.Blocks
                 throw new NumberUnitsException();
                 /*return BadRequest("Number of Units Must be Greater than one");*/
             }
-            _repository.Update(block);
 
             if (await _repository.CheckUnits(block.Id))
             {
@@ -120,8 +106,9 @@ namespace Services.Blocks
                 /*                return BadRequest("For this block unit registered before! you cant change number of units.");
                 */
             }
+            _repository.Update(block);
 
-            _repository.SaveBlock();
+            await _unitOfWork.Complete();
         }
     }
 }

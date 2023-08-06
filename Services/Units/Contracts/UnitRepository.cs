@@ -1,23 +1,16 @@
 ﻿using Entity.Entyties;
-using Microsoft.AspNetCore.Mvc;
-using Services.Units.Contracts.Dtos.Unit;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Services.Units.Contracts.Dtos;
 
 namespace Services.Units.Contracts
 {
     public interface UnitRepository
     {
         Task<bool> BlockIdDoesExist(int blockId);
-        bool DataIsEmpty();
-        Task<List<Get_UnitsDto>> GetAllUnits();
+        Task<List<GetUnitsDto>> GetAllUnits();
 
-        Unit SetUnit(Add_UnitDto dto);
+        Unit SetUnit(AddUnitDto dto);
 
         Task<bool> ExistUnitNameInBlock(int blockId, string tenant);
-        void Add(Unit unit);
+        Task<int> Add(Unit unit);
     }
 }

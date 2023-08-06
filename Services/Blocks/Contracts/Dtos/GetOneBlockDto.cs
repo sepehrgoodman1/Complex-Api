@@ -2,7 +2,7 @@
 
 namespace Services.Blocks.Contracts.Dtos
 {
-    public class Get_One_BlockDto
+    public class GetOneBlockDto
     {
         [JsonIgnore]
         public int Id { get; set; }

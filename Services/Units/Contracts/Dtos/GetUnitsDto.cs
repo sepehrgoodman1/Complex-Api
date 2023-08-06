@@ -1,6 +1,6 @@
-﻿namespace Services.Units.Contracts.Dtos.Unit
+﻿namespace Services.Units.Contracts.Dtos
 {
-    public class Get_UnitsDto
+    public class GetUnitsDto
     {
         public string Tenant { get; set; }
         public string TypeHouse { get; set; }
