@@ -29,7 +29,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
             }
             return true;
         }
-        public async Task<List<Get_BlocksDto>> GetAllBlocks()
+        public async Task<List<Get_BlocksDto>> GetAll()
         {
             var block = from b in _context.Block
                         select new Get_BlocksDto()
@@ -43,7 +43,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
             return await block.ToListAsync();
         }
 
-        public async Task<Get_One_BlockDto> GetBlocksById(int id)
+        public async Task<Get_One_BlockDto> GetById(int id)
         {
             var block = await _context.Block.Select(b =>
                                                   new Get_One_BlockDto()
@@ -55,7 +55,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
 
             return block;
         }
-        public async Task<List<Get_BlocksDto>> FindBlockByName(string name)
+        public async Task<List<Get_BlocksDto>> FindByName(string name)
         {
             IQueryable<Block> query = _context.Block;
 
@@ -93,7 +93,7 @@ namespace Ef.Persistence.ComplexProject.Blocks
         }
 
 
-        public async void AddBlock(Block block)
+        public async void Add(Block block)
         {
             _context.Block.Add(block);
             await _context.SaveChangesAsync();

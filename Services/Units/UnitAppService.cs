@@ -1,6 +1,7 @@
 ﻿using Entity.Entyties;
 using Services.Units.Contracts;
 using Services.Units.Contracts.Dtos.Unit;
+using Services.Units.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,7 +22,7 @@ namespace Services.Units
         {
             if (_repository.DataIsEmpty())
             {
-               /* return NotFound();*/
+                throw new NotFoundException();
             }
 
             return await _repository.GetAllUnits();
@@ -32,20 +33,21 @@ namespace Services.Units
 
             if (!Enum.IsDefined(typeof(TypeOfUnits), unit.TypeHouse))
             {
+                throw new UnitTypeExeption();
           /*      return BadRequest("Unit Type Must Be Only 'Owner', 'Tenant' or 'Anonymous'");*/
             }
 
             if (!await _repository.BlockIdDoesExist(unit.BlockId))
             {
-/*                return BadRequest("Block Id Does Not Exist");*/
+                throw new InvalidBlockIdException();
             }
 
             if (await _repository.ExistUnitNameInBlock(unit.BlockId, unit.Tenant))
             {
-              /*  return BadRequest("Unit Name Already Exist In Block");*/
+                throw new DuplicateUnitNameException();
             }
 
-            _repository.AddUnit(unit);
+            _repository.Add(unit);
         }
     }
 }

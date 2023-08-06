@@ -17,31 +17,31 @@ namespace Apis.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<Get_BlocksDto>> GetBlockList()
+        public async Task<IEnumerable<Get_BlocksDto>> GetAll()
         {
             return await _service.GetAll();
         }
 
         [HttpGet("GetBy/{id:int}")]
-        public async Task<Get_One_BlockDto> GetBlock(int id)
+        public async Task<Get_One_BlockDto> GetById(int id)
         {
             return await _service.GetById(id);
         }
 
         [HttpGet("GetBy/{name}")]
-        public async Task<List<Get_BlocksDto>> GetBlockist(string name)
+        public async Task<List<Get_BlocksDto>> GetByName(string name)
         {
             return await _service.GetByName(name);
         }
 
         [HttpPost]
-        public async void PostBlock(Add_BlockDto dto)
+        public async void Add(Add_BlockDto dto)
         {
             _service.Add(dto);
         }
 
         [HttpPatch]
-        public async void UpdateBlock(int id, Update_BlockDto BlockDto)
+        public async void Update(int id, Update_BlockDto BlockDto)
         {
             _service.Update(id, BlockDto);
         }

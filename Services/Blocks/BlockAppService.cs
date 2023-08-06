@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Blocks.Contracts;
 using Services.Blocks.Contracts.Dtos;
+using Services.Blocks.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,22 +30,23 @@ namespace Services.Blocks
         {
             if (! _repository.BlocksExist())
             {
-              /*  return NotFound();*/
+                throw new NotFoundException();
             }
 
-            return await _repository.GetAllBlocks();
+            return await _repository.GetAll();
         }
         public async Task<Get_One_BlockDto> GetById(int id)
         {
             if (!_repository.BlocksExist())
             {
-                /*return NotFound();*/
+                throw new NotFoundException();
             }
 
-            var block = _repository.GetBlocksById(id);
+            var block = _repository.GetById(id);
 
             if (block == null)
             {
+                throw new InvalidBlockIdException();
                 /*return NotFound("Block With this id does not Exist!");*/
             }
             return await block;
@@ -52,7 +54,7 @@ namespace Services.Blocks
 
         public async Task<List<Get_BlocksDto>> GetByName(string name)
         {
-            var block = await _repository.FindBlockByName(name);
+            var block = await _repository.FindByName(name);
             return  block;
         }
 
@@ -67,24 +69,26 @@ namespace Services.Blocks
 
             if (!await _repository.ComplexIdExist(block.ComplexId))
             {
+                throw new InvalidComplexIdException();
                 /*return NotFound("ComplexId Not Found!");*/
             }
 
             if (await _repository.CheckBlockName(block.Id, block.Name))
             {
+                throw new DuplicateBlockNameException();
                /* return BadRequest("Block Name Already Exist In Complex");*/
             }
 
             if (block.NumberUnits < 1)
             {
+                throw new NumberUnitsException();
                 /*return BadRequest("Number of Units Must be More than one unit");*/
             }
 
-            _repository.AddBlock(block);
+            _repository.Add(block);
 
             /*_repository.Save*/
 
-            /*return CreatedAtAction(nameof(GetBlockList), new { id = block.Id }, block);*/
         }
 
         public async void Update(int id, Update_BlockDto BlockDto)
@@ -93,6 +97,7 @@ namespace Services.Blocks
 
             if (block == null)
             {
+                throw new NotFoundException();
                 /*return NotFound("Block with this id does not exist!");*/
             }
 
@@ -103,21 +108,18 @@ namespace Services.Blocks
             }
             else
             {
+                throw new NumberUnitsException();
                 /*return BadRequest("Number of Units Must be Greater than one");*/
             }
             _repository.Update(block);
 
-
-            if (block.Units.Any())
-            {
-/*                return BadRequest("For this block unit registered before! you cant change number of units.");
-*/
-            }
-         
             if (await _repository.CheckUnits(block.Id))
             {
-/*                return BadRequest("For this block unit registered before! you cant change number of units.");
-*/            }
+                throw new RegisteredUnitException();
+
+                /*                return BadRequest("For this block unit registered before! you cant change number of units.");
+                */
+            }
 
             _repository.SaveBlock();
         }

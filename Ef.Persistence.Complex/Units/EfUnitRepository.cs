@@ -15,6 +15,11 @@ namespace Ef.Persistence.ComplexProject.Units
     {
         private readonly EFDataContext _context;
 
+
+        public EfUnitRepository(EFDataContext context)
+        {
+            _context = context;
+        }
         public async Task<bool> BlockIdDoesExist(int blockId)
         {
             return await _context.Block.AnyAsync(x => x.Id == blockId);
@@ -61,7 +66,7 @@ namespace Ef.Persistence.ComplexProject.Units
         }
 
 
-        public async void AddUnit(Unit unit)
+        public async void Add(Unit unit)
         {
             _context.Unit.Add(unit);
 

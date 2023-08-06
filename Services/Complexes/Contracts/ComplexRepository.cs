@@ -11,16 +11,16 @@ namespace Services.Complexes.Contracts
 {
     public interface ComplexRepository
     {
-        Task<bool> complexIsNull();
-        Task<List<Get_ComplexDto>> GetComplexRegUnit();
+        Task<bool> IsNull();
+        Task<List<Get_ComplexDto>> GetWithNumRegisteredUnits();
         Task<List<Get_Coplexes_Detail_BlocksDto>> GetComplexDetailBlock();
         Task<Get_Complex_And_CountBlock> GetComplexCountBlocks(int id);
-        Task<Get_ComplexDto> GetComplexById(int id);
-        Task<List<Get_ComplexDto>> FindComplexByName(string name);
-        void AddComplex(Complex complex);
-        Task<Complex> GetAllComplexWithUnits(int id);
+        Task<Get_ComplexDto> GetAllWithRegUnit(int id);
+        Task<List<Get_ComplexDto>> FindByName(string name);
+        void Add(Complex complex);
+        Task<Complex> GetComplexWithAllUnits(int id);
         void Update(Complex complex);
-        Task<Complex> FindComplexById(int id);
+        Task<Complex> GetById(int id);
         void Remove(Complex complex);
     }
 }

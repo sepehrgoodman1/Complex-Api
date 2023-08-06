@@ -15,13 +15,13 @@ namespace Apis.Controllers
             _service = services;
         }
         [HttpGet]
-        public async Task<List<Get_UnitsDto>> GetUnitList()
+        public async Task<List<Get_UnitsDto>> GetAll()
         {
             return await _service.GetAll();
         }
 
         [HttpPost]
-        public async void PostUnit(Add_UnitDto dto)
+        public async void Add(Add_UnitDto dto)
         {
             _service.Add(dto);
 

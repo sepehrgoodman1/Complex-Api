@@ -14,12 +14,5 @@
   <ItemGroup>
     <ProjectReference Include="..\Entity\Entity.csproj" />
   </ItemGroup>
-	
-	
-  <ItemGroup>
-    <Folder Include="Blocks\Exceptions\" />
-    <Folder Include="Complexes\Exceptions\" />
-    <Folder Include="Units\Exceptions\" />
-  </ItemGroup>
 
 </Project>

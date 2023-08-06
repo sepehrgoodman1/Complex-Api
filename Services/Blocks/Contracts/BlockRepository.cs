@@ -12,12 +12,12 @@ namespace Services.Blocks.Contracts
     public interface BlockRepository
     {
         bool BlocksExist();
-        Task<List<Get_BlocksDto>> GetAllBlocks();
-        Task<Get_One_BlockDto> GetBlocksById(int id);
-        Task<List<Get_BlocksDto>> FindBlockByName(string name);
+        Task<List<Get_BlocksDto>> GetAll();
+        Task<Get_One_BlockDto> GetById(int id);
+        Task<List<Get_BlocksDto>> FindByName(string name);
         Task<bool> ComplexIdExist(int BlockId);
         Task<bool> CheckBlockName(int complexId, string blockName);
-        void AddBlock(Block block);
+        void Add(Block block);
         Task<Block> FindBlock(int BlockId);
         void Update(Block block);
         Task<bool> CheckUnits(int BlockId);

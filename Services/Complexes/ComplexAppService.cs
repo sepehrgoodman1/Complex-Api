@@ -1,7 +1,9 @@
 ﻿using Entity.Entyties;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Services.Complexes.Contracts;
 using Services.Complexes.Contracts.Dtos;
+using Services.Complexes.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,74 +23,74 @@ namespace Services.Complexes
 
         public async Task<List<Get_ComplexDto>> GetAll_WithRegUnit()
         {
-            if (await _repository.complexIsNull())
+            if (await _repository.IsNull())
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
-            var complex = await _repository.GetComplexRegUnit();
+            var complex = await _repository.GetWithNumRegisteredUnits();
 
             if (!complex.Any())
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             return complex;
         }
         public async Task<List<Get_Coplexes_Detail_BlocksDto>> GetAll_WithBlockDetail()
         {
-            if (await _repository.complexIsNull())
+            if (await _repository.IsNull())
             {
-               /* return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             var complex = await _repository.GetComplexDetailBlock();
 
             if (!complex.Any())
             {
-             /*   return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             return complex;
         }
         public async Task<Get_Complex_And_CountBlock> GetById_WithNumBlocks(int id)
         {
-            if (await _repository.complexIsNull())
+            if (await _repository.IsNull())
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
             var complex = await _repository.GetComplexCountBlocks(id);
 
             if (complex == null)
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
             return complex;
 
         }
         public async Task<Get_ComplexDto> GetById(int id)
         {
-            if (await _repository.complexIsNull())
+            if (await _repository.IsNull())
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
 
-            var complex = await _repository.GetComplexById(id);
+            var complex = await _repository.GetAllWithRegUnit(id);
 
             if (complex == null)
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             return complex;
         }
         public async Task<List<Get_ComplexDto>> GetByName(string name)
         {
-            var complex = await _repository.FindComplexByName(name);
+            var complex = await _repository.FindByName(name);
 
             if (!complex.Any())
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             return complex;
@@ -103,24 +105,25 @@ namespace Services.Complexes
 
             if (complex.NumberUnits < 4 || complex.NumberUnits > 1000)
             {
-                /*return BadRequest("Number of Units Must be between 4 and 1000");*/
+                throw new NumberOfUnitsException();
             }
 
-            _repository.AddComplex(complex);
+            _repository.Add(complex);
 
        /*     return CreatedAtAction(nameof(GetComplexList), new { id = complex.Id }, complex);*/
         }
         public async void Update(int id, UpdateComplexDto complexDto)
         {
-            var complex = await _repository.GetAllComplexWithUnits(id);
+            var complex = await _repository.GetComplexWithAllUnits(id);
 
             if (complex == null)
             {
-                /*return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             if (complex.Blocks.SelectMany(x => x.Units).Any())
             {
+                throw new RegisteredUnitException();
                /* return BadRequest("for this complex there is registered unit, you cant change number of units!");*/
             }
 
@@ -129,16 +132,16 @@ namespace Services.Complexes
         }
         public async void Delete(int id)
         {
-            if (await _repository.complexIsNull())
+            if (await _repository.IsNull())
             {
-/*                return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
-            var complex = await _repository.FindComplexById(id);
+            var complex = await _repository.GetById(id);
 
             if (complex == null)
             {
-             /*   return NotFound();*/
+                throw new ComplexNotFoundException();
             }
 
             _repository.Remove(complex);

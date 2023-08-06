@@ -18,6 +18,6 @@ namespace Services.Units.Contracts
         Unit SetUnit(Add_UnitDto dto);
 
         Task<bool> ExistUnitNameInBlock(int blockId, string tenant);
-        void AddUnit(Unit unit);
+        void Add(Unit unit);
     }
 }
