@@ -31,7 +31,7 @@ namespace Apis.Controllers
         }
 
         [HttpGet("GetBy/{name}")]
-        public async Task<List<GetBlocksDto>> GetByName(string name)
+        public async Task<List<GetBlocksDto>> GetByName([FromQuery] string name)
         {
             return await _service.GetByName(name);
         }

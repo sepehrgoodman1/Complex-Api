@@ -35,7 +35,7 @@ namespace Services.Blocks
             return await block;
         }
 
-        public async Task<List<GetBlocksDto>> GetByName(string name)
+        public async Task<List<GetBlocksDto>> GetByName( string name)
         {
             var block = await _repository.FindByName(name);
             return  block;

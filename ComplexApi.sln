@@ -1,19 +1,21 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33801.468
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apis", "ComplexApi\Apis.csproj", "{313AEE11-421E-4384-A6DB-F425BFC33408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apis", "src\ComplexApi\Apis.csproj", "{313AEE11-421E-4384-A6DB-F425BFC33408}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Migrations", "Migrations\Migrations.csproj", "{E21AF17F-BC80-4540-ADED-4416AB49EFFE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Migrations", "src\Migrations\Migrations.csproj", "{E21AF17F-BC80-4540-ADED-4416AB49EFFE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ef.Persistence.ComplexProject", "Ef.Persistence.Complex\Ef.Persistence.ComplexProject.csproj", "{1547D81C-BDC1-441B-9E62-F7E0DAD094C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ef.Persistence.ComplexProject", "src\Ef.Persistence.Complex\Ef.Persistence.ComplexProject.csproj", "{1547D81C-BDC1-441B-9E62-F7E0DAD094C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entity", "Entity\Entity.csproj", "{88701A57-B427-4F7F-A159-FF7E45F34C2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Entity", "src\Entity\Entity.csproj", "{88701A57-B427-4F7F-A159-FF7E45F34C2E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "Services\Services.csproj", "{65D5AAA8-061E-46B0-ACBA-553C35611417}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "src\Services\Services.csproj", "{65D5AAA8-061E-46B0-ACBA-553C35611417}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taav.Contracts", "C:\Users\digi max\Downloads\00.package\Taav.Contracts\Taav.Contracts.csproj", "{B527AB09-482E-4C96-91E7-B61561633994}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Taav.Contracts", "src\Taav.Contracts\Taav.Contracts.csproj", "{B527AB09-482E-4C96-91E7-B61561633994}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E7A2AB48-1783-4460-BAA1-27CA78A6416B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,6 +50,14 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{313AEE11-421E-4384-A6DB-F425BFC33408} = {E7A2AB48-1783-4460-BAA1-27CA78A6416B}
+		{E21AF17F-BC80-4540-ADED-4416AB49EFFE} = {E7A2AB48-1783-4460-BAA1-27CA78A6416B}
+		{1547D81C-BDC1-441B-9E62-F7E0DAD094C7} = {E7A2AB48-1783-4460-BAA1-27CA78A6416B}
+		{88701A57-B427-4F7F-A159-FF7E45F34C2E} = {E7A2AB48-1783-4460-BAA1-27CA78A6416B}
+		{65D5AAA8-061E-46B0-ACBA-553C35611417} = {E7A2AB48-1783-4460-BAA1-27CA78A6416B}
+		{B527AB09-482E-4C96-91E7-B61561633994} = {E7A2AB48-1783-4460-BAA1-27CA78A6416B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {14C6519A-E0A9-4AC5-BC0F-AA1C0516E370}
