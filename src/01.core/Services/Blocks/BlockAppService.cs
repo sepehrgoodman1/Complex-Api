@@ -54,27 +54,22 @@ namespace ComplexProject.Services.Blocks
 
         public async Task<int> Add(AddBlockDto dto)
         {
+            if (!await _complexRepository.ComplexIdExist(dto.ComplexId))
+            {
+                throw new InvalidComplexIdException();
+            }
+
+            if (await _repository.IsExistByNameAndComplexId(dto.ComplexId, dto.Name))
+            {
+                throw new DuplicateBlockNameException();
+            }
+
             var block = new Block
             {
                 Name = dto.Name,
                 NumberUnits = dto.NumberUnits,
                 ComplexId = dto.ComplexId,
             };
-
-            if (! await _complexRepository.ComplexIdExist(block.ComplexId))
-            {
-                throw new InvalidComplexIdException();
-            }
-
-            if (await _repository.IsExistByNameAndComplexId(block.ComplexId, block.Name))
-            {
-                throw new DuplicateBlockNameException();
-            }
-
-            if (block.NumberUnits < 1)
-            {
-                throw new NumberUnitsException();
-            }
 
             _repository.Add(block);
 

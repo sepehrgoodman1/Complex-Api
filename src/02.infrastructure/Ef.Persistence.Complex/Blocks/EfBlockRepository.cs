@@ -11,10 +11,12 @@ namespace ComplexProject.Persistence.Ef.Blocks
     public class EfBlockRepository : BlockRepository
     {
         private readonly DbSet<Block> _blocks;
+        private readonly DbSet<Unit> _units;
 
         public EfBlockRepository(EFDataContext context)
         {
             _blocks = context.Blocks;
+            _units = context.Units;
         }
 
 
@@ -99,8 +101,11 @@ namespace ComplexProject.Persistence.Ef.Blocks
         public async Task<bool> ExistUnitNameInBlock(int blockId, string tenant)
         {
             var block = await _blocks.Include(b => b.Units).FirstOrDefaultAsync(x => x.Id == blockId);
-
             return block.Units.Select(b => b.Tenant).Contains(tenant);
+
+
+
+            //var a = await _units.AnyAsync(_=>_.Tenant == tenant && _.BlockId == blockId);
         }
 
         public async Task<bool> IsExistByNameAndComplexId(int complexId, string name)

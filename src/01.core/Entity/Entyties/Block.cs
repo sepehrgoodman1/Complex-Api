@@ -11,7 +11,7 @@
         public string Name { get; set; }
         public int NumberUnits { get; set; }
         public int ComplexId { get; set; }
-        public Complex Complexes { get; set; }
+        public Complex Complex { get; set; }
         public HashSet<Unit> Units { get; set; }
     }
 }

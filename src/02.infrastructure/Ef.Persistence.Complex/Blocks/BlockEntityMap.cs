@@ -18,6 +18,8 @@ namespace ComplexProject.Persistence.Ef.Blocks
             _.Property(_ => _.Id).ValueGeneratedOnAdd();
             _.Property(_ => _.Name).IsRequired();
             _.Property(_ => _.NumberUnits).IsRequired();
+            _.HasOne(_ => _.Complex)
+                .WithMany(_ => _.Blocks).HasForeignKey(_ => _.ComplexId);
         }
     }
 }
